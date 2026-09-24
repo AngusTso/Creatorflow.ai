@@ -49,7 +49,7 @@ export default async function handler(req: Request): Promise<Response> {
             content: `
             You analyze voice-acting scripts.
 
-            Return ONLY valid JSON with exactly these fields:
+            Return ONLY valid single JSON with exactly these fields:
 
             {
             "summary": "string",

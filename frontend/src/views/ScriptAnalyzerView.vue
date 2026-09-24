@@ -1,51 +1,60 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { analyzeScript } from '../api/script'
-import type { ScriptRequest } from '../api/script'
-import BaseButton from '../components/BaseButton.vue'
-import FormField from '../components/FormField.vue'
-import PageHeader from '../components/PageHeader.vue'
-import ResultPanel from '../components/ResultPanel.vue'
+import { computed, reactive, ref } from "vue";
+import { analyzeScript } from "../api/script";
+import type { ScriptRequest, ScriptAnalysis } from "../api/script";
+import BaseButton from "../components/BaseButton.vue";
+import FormField from "../components/FormField.vue";
+import PageHeader from "../components/PageHeader.vue";
+import ResultPanel from "../components/ResultPanel.vue";
 
-const form = reactive({ script: '' })
-const errors = reactive({ script: '' })
-
-const status = ref<'idle' | 'loading' | 'error'>('idle')
-const errorMessage = ref('')
+const form = reactive({ script: "" });
+const errors = reactive({ script: "" });
+const result: ScriptAnalysis = reactive({
+  summary: "",
+  tone: "",
+  emotion: "",
+  vocalDifficulty: "",
+  voiceDirection: "",
+  workloadEstimate: "",
+});
+const status = ref<"idle" | "loading" | "error">("idle");
+const errorMessage = ref("");
 
 /** Counted in the browser - that is not AI work, so it does not need the backend. */
-const characterCount = computed(() => form.script.length)
+const characterCount = computed(() => form.script.length);
 const wordCount = computed(() =>
-  form.script.trim() === '' ? 0 : form.script.trim().split(/\s+/).length,
-)
+  form.script.trim() === "" ? 0 : form.script.trim().split(/\s+/).length,
+);
 
 function handleClear() {
-  form.script = ''
-  errors.script = ''
-  status.value = 'idle'
-  errorMessage.value = ''
+  form.script = "";
+  errors.script = "";
+  status.value = "idle";
+  errorMessage.value = "";
 }
 
 async function handleSubmit() {
-  errors.script = form.script.trim() === '' ? 'Paste a script before analyzing.' : ''
+  errors.script =
+    form.script.trim() === "" ? "Paste a script before analyzing." : "";
 
-  if (errors.script !== '') {
-    return
+  if (errors.script !== "") {
+    return;
   }
 
-  const request: ScriptRequest = { script: form.script.trim() }
+  const request: ScriptRequest = { script: form.script.trim() };
 
-  status.value = 'loading'
-  errorMessage.value = ''
+  status.value = "loading";
+  errorMessage.value = "";
 
   try {
     // The backend is not connected yet, so this always throws for now.
-    await analyzeScript(request)
+    Object.assign(result, await analyzeScript(request));
     // The analysis will be rendered here once the AI step exists.
-    status.value = 'idle'
+    status.value = "idle";
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : 'Something went wrong.'
-    status.value = 'error'
+    errorMessage.value =
+      error instanceof Error ? error.message : "Something went wrong.";
+    status.value = "error";
   }
 }
 </script>
@@ -77,8 +86,15 @@ async function handleSubmit() {
       </FormField>
 
       <div class="flex flex-wrap items-center gap-3">
-        <BaseButton type="submit" :loading="status === 'loading'">Analyze script</BaseButton>
-        <BaseButton type="button" variant="secondary" :disabled="form.script === ''" @click="handleClear">
+        <BaseButton type="submit" :loading="status === 'loading'"
+          >Analyze script</BaseButton
+        >
+        <BaseButton
+          type="button"
+          variant="secondary"
+          :disabled="form.script === ''"
+          @click="handleClear"
+        >
           Clear
         </BaseButton>
       </div>
@@ -91,10 +107,10 @@ async function handleSubmit() {
       :error-message="errorMessage"
       loading-message="Analyzing the script..."
     >
-      <p class="text-sm text-slate-400">Your AI result will appear here.</p>
+      <p class="text-sm text-slate-400">{{ result }}</p>
       <p class="mt-2 text-xs leading-relaxed text-slate-500">
-        Planned output: summary, tone, emotion, vocal difficulty, voice direction and a workload
-        estimate.
+        Planned output: summary, tone, emotion, vocal difficulty, voice
+        direction and a workload estimate.
       </p>
     </ResultPanel>
   </div>
