@@ -6,7 +6,7 @@
  * below is already real - it simply stays unused until the endpoints exist.
  */
 /** Base path of the backend API. Swap this for the deployed API URL later. */
-const API_BASE_URL = '/api';
+const API_BASE_URL = "/api";
 /**
  * Switch this to `true` in the lesson that adds the backend endpoints.
  * While it is `false` the pages show a clear "API not implemented yet" error
@@ -19,7 +19,7 @@ export class ApiError extends Error {
     status;
     constructor(message, status) {
         super(message);
-        this.name = 'ApiError';
+        this.name = "ApiError";
         this.status = status;
     }
 }
@@ -28,13 +28,13 @@ export async function postJson(path, body) {
     let response;
     try {
         response = await fetch(`${API_BASE_URL}${path}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
         });
     }
     catch {
-        throw new ApiError('Could not reach the API. Is the backend running?');
+        throw new ApiError("Could not reach the API. Is the backend running?");
     }
     if (!response.ok) {
         throw new ApiError(`The API answered with status ${response.status}.`, response.status);
