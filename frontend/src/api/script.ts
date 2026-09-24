@@ -25,7 +25,7 @@ export interface ScriptAnalyzeResponse {
 /** Asks the backend to analyze a voice-acting script. */
 export async function analyzeScript(request: ScriptRequest): Promise<ScriptAnalyzeResponse> {
   if (!API_READY) {
-    throw new ApiError('API not implemented yet: POST /api/script/analyze')
+    throw new ApiError('The API layer is switched off (API_READY is false in src/api/client.ts).')
   }
 
   return postJson<ScriptAnalyzeResponse>('/script/analyze', request)

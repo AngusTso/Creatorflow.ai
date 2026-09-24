@@ -9,9 +9,10 @@
 const API_BASE_URL = '/api'
 
 /**
- * `true` once the backend endpoints exist. While it is `false` the feature
- * modules in `src/api/` throw a clear "API not implemented yet" error instead
- * of a confusing network error.
+ * Master switch for the API layer. The endpoints in `api/script/` are live, so
+ * this is `true`; set it to `false` to switch every call off (handy while
+ * working offline). Features whose endpoint does not exist yet carry their own
+ * switch - see `src/api/contract.ts`.
  */
 export const API_READY = true
 

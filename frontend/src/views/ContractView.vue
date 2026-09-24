@@ -71,6 +71,15 @@ async function handleSubmit() {
       {{ disclaimer }}
     </p>
 
+    <p
+      class="mb-6 rounded-lg border border-slate-800 bg-slate-900/40 p-3 text-xs leading-relaxed text-slate-400"
+      role="note"
+    >
+      <span class="font-semibold text-slate-300">Coming soon:</span> the terms generator is not built yet,
+      so submitting this form tells you that instead of returning a draft. The form is here to show what the
+      tool will need.
+    </p>
+
     <form class="space-y-6" novalidate @submit.prevent="handleSubmit">
       <FormField
         id="contract-project"

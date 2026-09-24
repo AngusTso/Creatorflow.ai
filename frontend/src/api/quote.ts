@@ -28,7 +28,7 @@ export interface QuoteEstimate {
  */
 export async function analyzeQuote(request: QuoteRequest): Promise<QuoteEstimate> {
   if (!API_READY) {
-    throw new ApiError('API not implemented yet: POST /api/script/quote')
+    throw new ApiError('The API layer is switched off (API_READY is false in src/api/client.ts).')
   }
 
   return postJson<QuoteEstimate>('/script/quote', request)

@@ -10,8 +10,11 @@ import ResultPanel from '../components/ResultPanel.vue'
 const form = reactive({
   projectDescription: '',
   currency: 'USD' as Currency,
-  /** Kept as a string because it is bound to a text/number input. */
-  hourlyRate: '',
+  /**
+   * Vue's `v-model` writes a real number for `<input type="number">` and `''`
+   * when the field is empty, so both are allowed here.
+   */
+  hourlyRate: '' as number | '',
 })
 
 const errors = reactive({
@@ -28,9 +31,9 @@ function validate(): boolean {
   errors.projectDescription =
     form.projectDescription.trim() === '' ? 'Describe your project before generating a quote.' : ''
 
-  const rawRate = form.hourlyRate.trim()
+  const rawRate = form.hourlyRate
   errors.hourlyRate =
-    rawRate !== '' && !(Number(rawRate) > 0) ? 'Use a positive number, or leave this empty.' : ''
+    rawRate !== '' && !(rawRate > 0) ? 'Use a positive number, or leave this empty.' : ''
 
   return errors.projectDescription === '' && errors.hourlyRate === ''
 }
@@ -54,7 +57,8 @@ async function handleSubmit() {
   const request: QuoteRequest = {
     projectDescription: form.projectDescription.trim(),
     currency: form.currency,
-    hourlyRate: form.hourlyRate.trim() === '' ? undefined : Number(form.hourlyRate),
+    // Left out entirely when the field is empty, so the backend uses its default.
+    hourlyRate: form.hourlyRate === '' ? undefined : form.hourlyRate,
   }
 
   status.value = 'loading'
@@ -75,7 +79,7 @@ async function handleSubmit() {
   <div>
     <PageHeader
       title="Quote Assistant"
-      description="Describe the project in your own words. CreatorFlow AI extracts the requirements first, and a deterministic Python calculator turns them into an estimate - no guesswork, the maths is code."
+      description="Describe the project in your own words. The AI estimates the hours, then a small calculator does the arithmetic - the AI never guesses the final price."
     />
 
     <form class="space-y-6" novalidate @submit.prevent="handleSubmit">
@@ -113,7 +117,7 @@ async function handleSubmit() {
         >
           <input
             id="quote-rate"
-            v-model="form.hourlyRate"
+            v-model.number="form.hourlyRate"
             class="field-input"
             type="number"
             min="1"
@@ -167,8 +171,8 @@ async function handleSubmit() {
       <template v-else>
         <p class="text-sm text-slate-400">Your AI result will appear here.</p>
         <p class="mt-2 text-xs leading-relaxed text-slate-500">
-          Planned output: extracted requirements, estimated hours and the calculated total with a short
-          breakdown.
+          You will get the estimated hours, your hourly rate, the currency and the calculated total, plus a
+          short AI summary you can paste into your reply.
         </p>
       </template>
     </ResultPanel>
