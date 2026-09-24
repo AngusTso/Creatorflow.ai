@@ -5,18 +5,15 @@ export type Currency = 'USD' | 'HKD' | 'JPY'
 
 export const CURRENCIES: readonly Currency[] = ['USD', 'HKD', 'JPY']
 
-/** Body sent to `POST /api/quote`. */
+/** Body sent to `POST /api/script/quote`. */
 export interface QuoteRequest {
   projectDescription: string
   currency: Currency
-  /** Optional - when left out the backend uses its own default rate. */
+  /** Optional - when left out the backend uses its default rate for the currency. */
   hourlyRate?: number
 }
 
-/**
- * Shape the backend will return for `POST /api/quote`.
- * Nothing renders it yet: the Python estimate calculator is a later step.
- */
+/** Shape returned by `POST /api/script/quote` (see `api/script/quote.ts`). */
 export interface QuoteEstimate {
   currency: Currency
   hourlyRate: number
@@ -25,11 +22,14 @@ export interface QuoteEstimate {
   summary: string
 }
 
-/** Asks the backend to extract requirements and calculate a quote. */
+/**
+ * Asks the backend to estimate the hours and calculate the quote.
+ * The route matches the serverless function `api/script/quote.ts`.
+ */
 export async function analyzeQuote(request: QuoteRequest): Promise<QuoteEstimate> {
   if (!API_READY) {
-    throw new ApiError('API not implemented yet: POST /api/quote')
+    throw new ApiError('API not implemented yet: POST /api/script/quote')
   }
 
-  return postJson<QuoteEstimate>('/quote', request)
+  return postJson<QuoteEstimate>('/script/quote', request)
 }

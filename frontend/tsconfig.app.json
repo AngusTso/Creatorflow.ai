@@ -10,6 +10,10 @@
     "useDefineForClassFields": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "types": ["vite/client"],
+
+    /* Never write .js files next to the sources: `vue-tsc -b` would otherwise
+       drop compiled copies into src/, where they shadow the .ts files. */
+    "noEmit": true,
     "allowArbitraryExtensions": true,
 
     /* Linting */

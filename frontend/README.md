@@ -46,7 +46,7 @@ npm run type-check # types only
 src/
   api/          # API layer: one module per feature + shared fetch helper
     client.ts   #   API_BASE_URL, API_READY, ApiError, postJson()
-    quote.ts    #   analyzeQuote()     -> POST /api/quote
+    quote.ts    #   analyzeQuote()     -> POST /api/script/quote (api/script/quote.ts)
     contract.ts #   generateContract() -> POST /api/contract
     script.ts   #   analyzeScript()    -> POST /api/script/analyze
   components/   # AppHeader, AppFooter, PageHeader, FormField, BaseButton, ResultPanel
@@ -57,9 +57,14 @@ src/
   main.ts       # creates the app
 ```
 
-## Connecting the backend later
+## Backend endpoints
 
-1. Build the endpoints (`POST /api/quote`, `POST /api/contract`, `POST /api/script/analyze`).
-2. In `src/api/client.ts` set `API_READY = true` (and point `API_BASE_URL` at the deployed API).
-3. In development, add a Vite dev proxy (or run the API on `/api`) so the browser can reach it.
-4. Render the returned payload in each page's `ResultPanel` instead of the placeholder text.
+The endpoints are Vercel serverless functions in the `api/` folder at the repository root. The paths
+below are what the frontend calls.
+
+1. `api/script/analyze.ts` -> `POST /api/script/analyze` - Script Analyzer (connected).
+2. `api/script/quote.ts` -> `POST /api/script/quote` - Quote Assistant (connected, uses the
+   `calculateQuote()` helper in the same folder).
+3. `api/contract.ts` - not built yet, so the Contract / TOS page reports the API error.
+4. `/api/*` only runs through Vercel, so test the AI features with `vercel dev` from the repository
+   root (with `OPENROUTER_API_KEY` set) instead of plain `npm run dev`.

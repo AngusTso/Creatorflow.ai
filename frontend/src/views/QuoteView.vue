@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { CURRENCIES, analyzeQuote } from '../api/quote'
-import type { Currency, QuoteRequest } from '../api/quote'
+import type { Currency, QuoteEstimate, QuoteRequest } from '../api/quote'
 import BaseButton from '../components/BaseButton.vue'
 import FormField from '../components/FormField.vue'
 import PageHeader from '../components/PageHeader.vue'
@@ -21,6 +21,8 @@ const errors = reactive({
 
 const status = ref<'idle' | 'loading' | 'error'>('idle')
 const errorMessage = ref('')
+/** Filled in after a successful request. */
+const result = ref<QuoteEstimate | null>(null)
 
 function validate(): boolean {
   errors.projectDescription =
@@ -31,6 +33,17 @@ function validate(): boolean {
     rawRate !== '' && !(Number(rawRate) > 0) ? 'Use a positive number, or leave this empty.' : ''
 
   return errors.projectDescription === '' && errors.hourlyRate === ''
+}
+
+/** Formats an amount with the currency the backend answered with. */
+function formatMoney(value: number): string {
+  const currency = result.value?.currency
+
+  if (currency === undefined || !CURRENCIES.includes(currency)) {
+    return value.toLocaleString('en-US')
+  }
+
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value)
 }
 
 async function handleSubmit() {
@@ -46,11 +59,10 @@ async function handleSubmit() {
 
   status.value = 'loading'
   errorMessage.value = ''
+  result.value = null
 
   try {
-    // The backend is not connected yet, so this always throws for now.
-    await analyzeQuote(request)
-    // The estimate will be rendered here once the Python calculator exists.
+    result.value = await analyzeQuote(request)
     status.value = 'idle'
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'Something went wrong.'
@@ -123,11 +135,42 @@ async function handleSubmit() {
       :error-message="errorMessage"
       loading-message="Reading your project description..."
     >
-      <p class="text-sm text-slate-400">Your AI result will appear here.</p>
-      <p class="mt-2 text-xs leading-relaxed text-slate-500">
-        Planned output: extracted requirements, estimated hours and the calculated total with a short
-        breakdown.
-      </p>
+      <template v-if="result">
+        <p class="text-3xl font-semibold tracking-tight text-white">
+          {{ formatMoney(result.total) }}
+        </p>
+        <p class="mt-1 text-xs text-slate-400">Total for the estimated {{ result.hours }} hours</p>
+
+        <dl class="mt-5 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+            <dt class="text-xs font-medium text-slate-400">Currency</dt>
+            <dd class="mt-1 text-sm font-semibold text-white">{{ result.currency }}</dd>
+          </div>
+          <div class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+            <dt class="text-xs font-medium text-slate-400">Hourly rate</dt>
+            <dd class="mt-1 text-sm font-semibold text-white">{{ formatMoney(result.hourlyRate) }}</dd>
+          </div>
+          <div class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+            <dt class="text-xs font-medium text-slate-400">Estimated hours</dt>
+            <dd class="mt-1 text-sm font-semibold text-white">{{ result.hours }}</dd>
+          </div>
+        </dl>
+
+        <div class="mt-5">
+          <h3 class="text-xs font-semibold tracking-wide text-slate-400 uppercase">Summary</h3>
+          <p class="mt-1 text-sm leading-relaxed whitespace-pre-line text-slate-300">
+            {{ result.summary }}
+          </p>
+        </div>
+      </template>
+
+      <template v-else>
+        <p class="text-sm text-slate-400">Your AI result will appear here.</p>
+        <p class="mt-2 text-xs leading-relaxed text-slate-500">
+          Planned output: extracted requirements, estimated hours and the calculated total with a short
+          breakdown.
+        </p>
+      </template>
     </ResultPanel>
   </div>
 </template>

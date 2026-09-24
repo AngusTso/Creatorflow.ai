@@ -5,7 +5,7 @@ export interface ScriptRequest {
   script: string
 }
 
-/** Structured analysis the backend will return. */
+/** Structured analysis the AI returns for a script. */
 export interface ScriptAnalysis {
   summary: string
   tone: string
@@ -15,10 +15,7 @@ export interface ScriptAnalysis {
   workloadEstimate: string
 }
 
-/**
- * Shape the backend will return for `POST /api/script/analyze`.
- * Nothing renders it yet: the AI analysis is a later step.
- */
+/** Shape returned by `POST /api/script/analyze` (see `api/script/analyze.ts`). */
 export interface ScriptAnalyzeResponse {
   analysis: ScriptAnalysis
   wordCount: number
