@@ -47,8 +47,9 @@ async function handleSubmit() {
   errorMessage.value = "";
 
   try {
+    let res = await analyzeScript(request);
     // The backend is not connected yet, so this always throws for now.
-    Object.assign(result, await analyzeScript(request));
+    Object.assign(result, res.analysis);
     // The analysis will be rendered here once the AI step exists.
     status.value = "idle";
   } catch (error) {
