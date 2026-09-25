@@ -42,7 +42,7 @@ export default async function handler(req: Request): Promise<Response> {
         Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "google/gemma-4-26b-a4b-it:free",
+        model: "openrouter/free",
         messages: [
           {
             role: "system",
