@@ -50,6 +50,9 @@ export default async function handler(req: Request): Promise<Response> {
             You analyze voice-acting scripts.
 
             Analyze the script and return the requested structured fields.
+
+            each field include a short but concise sentence
+            
             Do not include any additional information.
             `,
           },
