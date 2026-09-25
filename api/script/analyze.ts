@@ -42,7 +42,7 @@ export default async function handler(req: Request): Promise<Response> {
         Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "qwen3.8-27b:free",
+        model: "meta-llama/llama-3.3-70b-instruct:free",
         messages: [
           {
             role: "system",
@@ -50,6 +50,17 @@ export default async function handler(req: Request): Promise<Response> {
             You analyze voice-acting scripts.
 
             Analyze the script and return the requested structured fields.
+
+            return in JSON format with all 6 fields including summary , tone, emotion, vocal difficulty, voice Direction and workload Estimate 
+
+            {
+              "summary",
+              "tone",
+              "emotion",
+              "vocalDifficulty",
+              "voiceDirection",
+              "workloadEstimate",
+            }
 
             each field include a short but concise sentence
             
