@@ -42,7 +42,7 @@ export default async function handler(req: Request): Promise<Response> {
         Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.3-70b-instruct:frees",
+        model: "qwen3.8-27b:free",
         messages: [
           {
             role: "system",
