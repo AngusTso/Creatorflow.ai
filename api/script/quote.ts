@@ -1,3 +1,7 @@
+export const config = {
+  runtime: "edge",
+};
+
 import { calculateQuote } from "./calculateQuote";
 
 type Currency = "USD" | "HKD" | "JPY";
@@ -110,7 +114,7 @@ export default async function handler(req: Request): Promise<Response> {
       },
       body: JSON.stringify({
         model: "openrouter/free",
-        message: [
+        messages: [
           {
             role: "system",
             content: `You are a project quotation assistant.
@@ -159,7 +163,7 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
-  const toolCall = message.tppl_calls?.[0];
+  const toolCall = message.tool_calls?.[0];
 
   if (!toolCall) {
     return Response.json(

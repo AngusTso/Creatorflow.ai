@@ -42,26 +42,15 @@ export default async function handler(req: Request): Promise<Response> {
         Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "openrouter/free",
+        model: "meta-llama/llama-3.3-70b-instruct:frees",
         messages: [
           {
             role: "system",
             content: `
             You analyze voice-acting scripts.
 
-            Return ONLY valid single JSON with exactly these fields:
-
-            {
-            "summary": "string",
-            "tone": "string",
-            "emotion": "string",
-            "vocalDifficulty": "string",
-            "voiceDirection": "string",
-            "workloadEstimate": "string"
-            }
-
-            Do not include markdown.
-            Do not include additional fields.
+            Analyze the script and return the requested structured fields.
+            Do not include any additional information.
             `,
           },
           {
@@ -69,9 +58,46 @@ export default async function handler(req: Request): Promise<Response> {
             content: script,
           },
         ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "script_analysis",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                summary: {
+                  type: "string",
+                },
+                tone: { type: "string" },
+                emotion: { type: "string" },
+                vocalDifficulty: { type: "string" },
+                voiceDirection: { type: "string" },
+                workloadEstimate: { type: "string" },
+              },
+            },
+            required: [
+              "summary",
+              "tone",
+              "emotion",
+              "vocalDifficulty",
+              "voiceDirection",
+              "workloadEstimate",
+            ],
+            additionalProperties: false,
+          },
+        },
       }),
     },
   );
+
+  if (!aiResponse.ok) {
+    const errorText = await aiResponse.text();
+
+    console.error("OpenRouter error:", errorText);
+
+    return Response.json({ error: "AI request failed" }, { status: 502 });
+  }
 
   const aiData = await aiResponse.json();
 
