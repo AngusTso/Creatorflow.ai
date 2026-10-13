@@ -1,5 +1,4 @@
 import { searchPolicies } from "./lib/rag/vsearch";
-import { rankWithRRF } from "./lib/rag/rankResults";
 
 const queries = [
   "payment terms and payment schedule",
@@ -9,23 +8,21 @@ const queries = [
 ];
 
 async function main() {
-  const resultsByQuery = await Promise.all(
-    queries.map((query) => searchPolicies(query, 2)),
-  );
+  for (const query of queries) {
+    const results = await searchPolicies(query, 2);
 
-  const ranked = rankWithRRF(queries, resultsByQuery);
-
-  console.dir(
-    ranked.map((result) => ({
-      id: result.id,
-      source: result.source,
-      section: result.section,
-      similarity: result.score,
-      rrfScore: result.rrfScore,
-      matchedQueries: result.matchedQueries,
-    })),
-    { depth: null },
-  );
+    console.log(`\nQuery: ${query}`);
+    console.table(
+      results.map((result) => ({
+        section: result.section,
+        source: result.source,
+        score: result.score,
+      })),
+    );
+  }
 }
 
-main().catch(console.error);
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});

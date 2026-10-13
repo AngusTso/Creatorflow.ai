@@ -1,13 +1,5 @@
-import policyIndex from "../../data/policy_embeddings.json";
 import { createEmbedding } from "./embeddings";
-
-interface EmbeddedChunk {
-  id: string;
-  content: string;
-  source: string;
-  section: string;
-  embedding: number[];
-}
+import { supabase } from "../../database";
 
 export interface SearchResult {
   id: string;
@@ -17,45 +9,43 @@ export interface SearchResult {
   score: number;
 }
 
-function cosineSimilarity(a: number[], b: number[]): number {
-  const dotProduct = a.reduce((sum, value, index) => sum + value * b[index], 0);
-
-  const magnitudeA = Math.sqrt(
-    a.reduce((sum, value) => sum + value * value, 0),
-  );
-
-  const magnitudeB = Math.sqrt(
-    b.reduce((sum, value) => sum + value * value, 0),
-  );
-
-  if (magnitudeA === 0 || magnitudeB === 0) {
-    return 0;
-  }
-
-  return dotProduct / (magnitudeA * magnitudeB);
-}
-
-function loadIndex(): EmbeddedChunk[] {
-  return policyIndex;
-}
-
 export async function searchPolicies(
   query: string,
   topK = 3,
 ): Promise<SearchResult[]> {
+  if (!query.trim()) {
+    return [];
+  }
+
   const queryEmbedding = await createEmbedding(query);
 
-  const index = loadIndex();
+  if (
+    !Array.isArray(queryEmbedding) ||
+    queryEmbedding.length === 0 ||
+    !queryEmbedding.every((n) => typeof n === "number" && Number.isFinite(n))
+  ) {
+    throw new Error("Embedding model returned an invalid vector");
+  }
 
-  const results = index.map((chunk) => ({
-    id: chunk.id,
-    content: chunk.content,
-    source: chunk.source,
-    section: chunk.section,
-    score: cosineSimilarity(queryEmbedding, chunk.embedding),
+  const { data, error } = await supabase.rpc("match_policy_chunks", {
+    query_embedding: queryEmbedding,
+    match_count: Math.max(1, Math.min(topK, 10)),
+  });
+
+  if (error) {
+    console.error("Database policy search failed:", error.message);
+    throw new Error("Could not search policy documents");
+  }
+
+  if (!data) {
+    return [];
+  }
+
+  return data.map((row: SearchResult) => ({
+    id: row.id,
+    content: row.content,
+    source: row.source,
+    section: row.section,
+    score: Number(row.score),
   }));
-
-  results.sort((a, b) => b.score - a.score);
-
-  return results.slice(0, topK);
 }

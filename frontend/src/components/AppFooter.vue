@@ -9,7 +9,7 @@
           first draft of your business terms and a quick read on any voice script. No account needed.
         </p>
         <p>AI output is a draft for your own review - it is not legal, financial or professional advice.</p>
-        <p class="text-cream/50">Quotes and script analysis are live. Terms drafting is coming soon.</p>
+        <p class="text-cream/50">Contract drafts are generated from your project details and policy sources.</p>
       </div>
 
       <p class="font-display text-lg leading-snug text-sage italic md:pt-1">

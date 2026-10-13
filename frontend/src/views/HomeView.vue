@@ -6,7 +6,6 @@ const features: {
   path: string;
   title: string;
   description: string;
-  badge?: string;
 }[] = [
   {
     path: "/quote",
@@ -19,7 +18,6 @@ const features: {
     title: "Contract / TOS Assistant",
     description:
       "Turn your project and terms into a first draft of business terms, grounded in your own policy knowledge base.",
-    badge: "Coming soon",
   },
   {
     path: "/script",
@@ -114,11 +112,11 @@ const features: {
           </RouterLink>
         </li>
 
-        <!-- 02 - soft sage panel with a coming-soon stamp. -->
+        <!-- 02 - soft sage panel. -->
         <li>
           <RouterLink
             :to="features[1].path"
-            class="group relative flex h-full flex-col rounded-lg border border-dashed border-forest/30 bg-sage/30 p-6 transition-colors hover:border-solid hover:border-clay/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rust/50"
+            class="group relative flex h-full flex-col rounded-lg border border-forest/15 bg-sage/30 p-6 transition-colors hover:border-clay/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rust/50"
           >
             <span
               class="font-display text-3xl leading-none font-black text-clay/80 italic select-none"
@@ -134,11 +132,12 @@ const features: {
             <p class="mt-2 flex-1 text-sm leading-relaxed text-forest/70">
               {{ features[1].description }}
             </p>
-            <span
-              v-if="features[1].badge"
-              class="mt-5 inline-block w-fit -rotate-2 border-2 border-rust/60 px-2.5 py-1 text-[0.62rem] font-bold tracking-[0.18em] text-rust uppercase"
-            >
-              {{ features[1].badge }}
+            <span class="mt-5 inline-block text-sm font-bold text-rust">
+              Open tool
+              <span
+                class="inline-block transition-transform group-hover:translate-x-1"
+                >&rarr;</span
+              >
             </span>
           </RouterLink>
         </li>
@@ -178,10 +177,9 @@ const features: {
     <p
       class="mt-14 max-w-2xl border-l-[3px] border-clay/70 pl-5 text-xs leading-relaxed text-forest/65"
     >
-      <span class="font-bold text-forest">Status:</span> the Quote Assistant and
-      Script Analyzer are live - each one calls a small serverless function that
-      talks to an AI model. The Contract / TOS assistant is still being built,
-      so its page tells you that instead of inventing terms.
+      <span class="font-bold text-forest">Status:</span> all three assistants
+      connect to serverless functions. Contract drafts are grounded in retrieved
+      policy information and should be reviewed before use.
     </p>
   </div>
 </template>

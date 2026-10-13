@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { generateContract } from '../api/contract'
-import type { ContractRequest } from '../api/contract'
+import type { ContractDraft, ContractRequest } from '../api/contract'
 import BaseButton from '../components/BaseButton.vue'
 import FormField from '../components/FormField.vue'
 import PageHeader from '../components/PageHeader.vue'
@@ -23,6 +23,7 @@ const errors = reactive({ projectDescription: '' })
 
 const status = ref<'idle' | 'loading' | 'error'>('idle')
 const errorMessage = ref('')
+const result = ref<ContractDraft | null>(null)
 
 async function handleSubmit() {
   errors.projectDescription =
@@ -44,11 +45,10 @@ async function handleSubmit() {
 
   status.value = 'loading'
   errorMessage.value = ''
+  result.value = null
 
   try {
-    // The backend is not connected yet, so this always throws for now.
-    await generateContract(request)
-    // The draft will be rendered here once the RAG step exists.
+    result.value = await generateContract(request)
     status.value = 'idle'
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'Something went wrong.'
@@ -60,7 +60,7 @@ async function handleSubmit() {
 <template>
   <div>
     <PageHeader
-      eyebrow="Tool 02 · coming soon"
+      eyebrow="Tool 02"
       title="Contract / TOS Assistant"
       description="Describe the project and your usual terms. CreatorFlow AI drafts business terms from your own policy knowledge base so the wording stays consistent between clients."
     >
@@ -72,15 +72,6 @@ async function handleSubmit() {
       role="note"
     >
       {{ disclaimer }}
-    </p>
-
-    <p
-      class="mb-8 rounded-md border border-dashed border-forest/30 bg-paper/70 p-4 text-xs leading-relaxed text-forest/70"
-      role="note"
-    >
-      <span class="font-display text-sm font-bold text-forest italic">Coming soon:</span> the terms generator is not built yet,
-      so submitting this form tells you that instead of returning a draft. The form is here to show what the
-      tool will need.
     </p>
 
     <form class="space-y-6" novalidate @submit.prevent="handleSubmit">
@@ -171,11 +162,53 @@ async function handleSubmit() {
       :error-message="errorMessage"
       loading-message="Drafting the terms from your policy knowledge base..."
     >
-      <p class="font-display text-lg font-bold text-forest/80 italic">Your result will appear here.</p>
-      <p class="mt-2 text-xs leading-relaxed text-forest/60">
-        Planned output: a draft covering scope, payment, revisions, cancellation and delivery, with the
-        policy sections it was based on.
-      </p>
+      <template v-if="result">
+        <h3 class="font-display text-2xl font-bold text-forest">{{ result.terms.title }}</h3>
+        <p class="mt-2 text-sm leading-relaxed whitespace-pre-line text-forest/85">
+          {{ result.terms.summary }}
+        </p>
+
+        <dl class="mt-6 space-y-5">
+          <div
+            v-for="(term, index) in result.terms.terms"
+            :key="`${index}-${term.heading}`"
+            class="border-l-[3px] pl-4"
+            :class="index % 2 === 0 ? 'border-clay/70' : 'border-sage'"
+          >
+            <dt class="font-display text-base font-bold text-forest">{{ term.heading }}</dt>
+            <dd class="mt-1 text-sm leading-relaxed whitespace-pre-line text-forest/85">
+              {{ term.content }}
+            </dd>
+          </div>
+        </dl>
+
+        <div v-if="result.terms.missingInformation.length > 0" class="mt-6">
+          <h4 class="eyebrow text-forest/55">Details to confirm</h4>
+          <ul class="mt-2 list-inside list-disc space-y-1 text-sm leading-relaxed text-forest/85">
+            <li v-for="item in result.terms.missingInformation" :key="item">{{ item }}</li>
+          </ul>
+        </div>
+
+        <p class="mt-6 border-t border-forest/15 pt-4 text-xs leading-relaxed text-forest/60">
+          {{ result.terms.disclaimer }}
+        </p>
+
+        <div v-if="result.sources.length > 0" class="mt-6">
+          <h4 class="eyebrow text-forest/55">Policy sources</h4>
+          <ul class="mt-2 space-y-1 text-xs leading-relaxed text-forest/60">
+            <li v-for="source in result.sources" :key="`${source.source}-${source.section}`">
+              {{ source.source }} · {{ source.section }}
+            </li>
+          </ul>
+        </div>
+      </template>
+      <template v-else>
+        <p class="font-display text-lg font-bold text-forest/80 italic">Your result will appear here.</p>
+        <p class="mt-2 text-xs leading-relaxed text-forest/60">
+          Generate a policy-grounded draft with the project details, missing information and policy
+          sections it was based on.
+        </p>
+      </template>
     </ResultPanel>
   </div>
 </template>

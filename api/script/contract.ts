@@ -15,10 +15,35 @@ interface ContractDraft {
   disclaimer: string;
 }
 
+interface ContractRequest {
+  projectDescription: string;
+  paymentTerms: string;
+  revisionTerms: string;
+  cancellationTerms: string;
+  deliveryTerms: string;
+}
+
 type PolicySearchResult = Awaited<ReturnType<typeof searchPolicies>>[number];
 
 interface ScoredPolicyResult extends PolicySearchResult {
   score: number;
+}
+
+function isContractRequest(value: unknown): value is ContractRequest {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const request = value as Record<string, unknown>;
+
+  return (
+    typeof request.projectDescription === "string" &&
+    request.projectDescription.trim() !== "" &&
+    typeof request.paymentTerms === "string" &&
+    typeof request.revisionTerms === "string" &&
+    typeof request.cancellationTerms === "string" &&
+    typeof request.deliveryTerms === "string"
+  );
 }
 
 function getScore(result: PolicySearchResult): number | undefined {
@@ -109,20 +134,31 @@ export default async function handler(req: Request): Promise<Response> {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  if (
-    typeof body !== "object" ||
-    body === null ||
-    !("projectDescription" in body) ||
-    typeof body.projectDescription !== "string" ||
-    body.projectDescription.trim() === ""
-  ) {
+  if (!isContractRequest(body)) {
     return Response.json(
-      { error: "projectDescription is required" },
+      {
+        error:
+          "projectDescription must be non-empty and all contract terms must be strings",
+      },
       { status: 400 },
     );
   }
 
-  const projectDescription = body.projectDescription.trim();
+  const contractRequest: ContractRequest = {
+    projectDescription: body.projectDescription.trim(),
+    paymentTerms: body.paymentTerms.trim(),
+    revisionTerms: body.revisionTerms.trim(),
+    cancellationTerms: body.cancellationTerms.trim(),
+    deliveryTerms: body.deliveryTerms.trim(),
+  };
+  const { projectDescription } = contractRequest;
+  const userProvidedTerms = [
+    `Payment terms: ${contractRequest.paymentTerms || "Not provided"}`,
+    `Revision terms: ${contractRequest.revisionTerms || "Not provided"}`,
+    `Cancellation terms: ${contractRequest.cancellationTerms || "Not provided"}`,
+    `Delivery terms: ${contractRequest.deliveryTerms || "Not provided"}`,
+  ].join("\n");
+  const projectContext = `${projectDescription}\n${userProvidedTerms}`;
 
   const apiKey = process.env.OPENROUTER_API_KEY;
 
@@ -139,19 +175,19 @@ export default async function handler(req: Request): Promise<Response> {
   const focusedQueries = [
     `Payment terms, payment schedule, deposits, outstanding payments,
      refunds related to payment, and additional fees.
-     Project description: ${projectDescription}`,
+     Project details and user-provided terms: ${projectContext}`,
 
     `Included revision rounds, extra revision fees, consolidated
      feedback, and changes to the agreed project scope.
-     Project description: ${projectDescription}`,
+     Project details and user-provided terms: ${projectContext}`,
 
     `Cancellation terms, refunds after cancellation, completed work,
      and non-refundable agreed costs.
-     Project description: ${projectDescription}`,
+     Project details and user-provided terms: ${projectContext}`,
 
     `Delivery deadlines, agreed delivery dates, required client
      materials, delays, and revised delivery estimates.
-     Project description: ${projectDescription}`,
+     Project details and user-provided terms: ${projectContext}`,
   ];
 
   let results: ScoredPolicyResult[];
@@ -219,26 +255,30 @@ RULES:
 3. Clearly distinguish project details supplied by the user from
    platform policies.
 
-4. If a required policy is unavailable in the retrieved context,
+4. Incorporate every non-empty user-provided term into the draft as a
+   project-specific agreement, not as a platform policy. If it conflicts
+   with retrieved policy, identify the conflict in missingInformation.
+
+5. If a required policy is unavailable in the retrieved context,
    identify that limitation in missingInformation. Do not pretend
    that the policy was retrieved or confirmed.
 
-5. Identify important project details that the user has not supplied,
+6. Identify important project details that the user has not supplied,
    such as pricing, payment schedule, delivery date, or agreed scope,
    when those details are relevant.
 
-6. Do not invent answers for missing project details. Use missingInformation
+7. Do not invent answers for missing project details. Use missingInformation
    to identify what the parties should agree on.
 
-7. You may organize the retrieved policy information into readable
+8. You may organize the retrieved policy information into readable
    contract terms, but do not change the meaning of a policy.
 
-8. Return a practical draft, not a claim that the document is legally
+9. Return a practical draft, not a claim that the document is legally
    enforceable or has been reviewed by a lawyer.
 
-9. This is a business-terms draft, not legal advice.
+10. This is a business-terms draft, not legal advice.
 
-10. If no relevant policy text is available, be transparent about that
+11. If no relevant policy text is available, be transparent about that
     limitation instead of fabricating platform rules.
 
 RETRIEVED PLATFORM POLICIES:
@@ -248,7 +288,7 @@ ${context || "No relevant platform policy chunks were retrieved."}
           },
           {
             role: "user",
-            content: projectDescription,
+            content: `Project description:\n${projectDescription}\n\nUser-provided terms:\n${userProvidedTerms}`,
           },
         ],
         response_format: {

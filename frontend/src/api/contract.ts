@@ -1,6 +1,6 @@
 import { API_READY, ApiError, postJson } from "./client";
 
-/** Body sent to `POST /api/contract`. */
+/** Body sent to `POST /api/script/contract`. */
 export interface ContractRequest {
   projectDescription: string;
   paymentTerms: string;
@@ -9,18 +9,30 @@ export interface ContractRequest {
   deliveryTerms: string;
 }
 
-/** Shape `POST /api/contract` will return once the endpoint exists. */
-export interface ContractDraft {
-  terms: string;
-  disclaimer: string;
+/** One generated term in the contract draft. */
+export interface ContractTerm {
+  heading: string
+  content: string
 }
 
-/**
- * The terms endpoint is not built yet (`api/contract.ts` does not exist), so the
- * page answers with a clear "coming soon" message instead of a confusing 404.
- * Flip this to `true` in the lesson that adds the endpoint.
- */
-const CONTRACT_ENDPOINT_READY = false;
+/** A policy reference used to ground the generated draft. */
+export interface ContractSource {
+  source: string
+  section: string
+  score: number
+}
+
+/** Shape returned by `POST /api/script/contract` (`api/script/contract.ts`). */
+export interface ContractDraft {
+  terms: {
+    title: string
+    summary: string
+    terms: ContractTerm[]
+    missingInformation: string[]
+    disclaimer: string
+  }
+  sources: ContractSource[]
+}
 
 /** Asks the backend to draft business terms for a project. */
 export async function generateContract(
@@ -32,11 +44,5 @@ export async function generateContract(
     );
   }
 
-  if (!CONTRACT_ENDPOINT_READY) {
-    throw new ApiError(
-      "The Contract / TOS assistant is coming soon. The endpoint POST /api/contract is not built yet.",
-    );
-  }
-
-  return postJson<ContractDraft>("/contract", request);
+  return postJson<ContractDraft>("/script/contract", request)
 }

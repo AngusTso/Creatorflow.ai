@@ -5,5 +5,9 @@
   },
   "scripts": {
     "index:policies": "tsx index-policies.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
+    "dotenv": "^18.0.7"
   }
 }
