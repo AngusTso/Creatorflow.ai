@@ -20,9 +20,9 @@ const props = withDefaults(
 
 const variantClasses: Record<'primary' | 'secondary', string> = {
   primary:
-    'bg-indigo-500 text-white hover:bg-indigo-400 focus-visible:outline-indigo-400 disabled:bg-slate-700 disabled:text-slate-400',
+    'bg-rust text-cream hover:bg-[#8d3d20] focus-visible:outline-rust/60 disabled:bg-forest/20 disabled:text-forest/45',
   secondary:
-    'border border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500 hover:text-white focus-visible:outline-slate-400 disabled:text-slate-500',
+    'border border-forest/30 bg-transparent text-forest hover:border-forest/70 hover:bg-forest/5 focus-visible:outline-forest/50 disabled:text-forest/40',
 }
 
 const classes = computed(() => variantClasses[props.variant])
@@ -33,7 +33,7 @@ const classes = computed(() => variantClasses[props.variant])
     :type="type"
     :disabled="disabled || loading"
     :aria-busy="loading"
-    class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed"
+    class="inline-flex items-center justify-center gap-2.5 rounded-md px-5 py-2.5 text-sm font-bold tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed"
     :class="classes"
   >
     <span

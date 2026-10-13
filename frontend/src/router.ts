@@ -42,8 +42,9 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  // Classic class added to the navigation link of the page you are on.
-  linkActiveClass: 'bg-slate-800 text-white',
+  // The current page's nav link picks up the `.is-active` class, styled in
+  // `styles/main.css`.
+  linkActiveClass: 'is-active',
   // Always open a new page at the top.
   scrollBehavior: () => ({ top: 0 }),
 })

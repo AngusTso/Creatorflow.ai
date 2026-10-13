@@ -16,15 +16,15 @@ defineProps<{
 <template>
   <div class="space-y-2">
     <div class="flex items-baseline justify-between gap-4">
-      <label :for="id" class="text-sm font-medium text-slate-200">{{ label }}</label>
-      <span v-if="hintRight" class="text-xs whitespace-nowrap text-slate-500">{{ hintRight }}</span>
+      <label :for="id" class="text-[0.8rem] font-bold tracking-wide text-forest">{{ label }}</label>
+      <span v-if="hintRight" class="text-xs font-medium whitespace-nowrap text-forest/50 tabular-nums">{{ hintRight }}</span>
     </div>
 
-    <p v-if="hint" :id="`${id}-hint`" class="text-xs leading-relaxed text-slate-400">{{ hint }}</p>
+    <p v-if="hint" :id="`${id}-hint`" class="text-xs leading-relaxed text-forest/60">{{ hint }}</p>
 
     <slot />
 
-    <p v-if="error" :id="`${id}-error`" class="text-xs font-medium text-rose-300" role="alert">
+    <p v-if="error" :id="`${id}-error`" class="text-xs font-bold text-rust" role="alert">
       {{ error }}
     </p>
   </div>

@@ -60,22 +60,25 @@ async function handleSubmit() {
 <template>
   <div>
     <PageHeader
+      eyebrow="Tool 02 · coming soon"
       title="Contract / TOS Assistant"
       description="Describe the project and your usual terms. CreatorFlow AI drafts business terms from your own policy knowledge base so the wording stays consistent between clients."
-    />
+    >
+      <template #title>Contract / TOS <em class="text-rust">Assistant</em></template>
+    </PageHeader>
 
     <p
-      class="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-100/90"
+      class="mb-4 border-l-[3px] border-clay bg-clay/10 p-4 text-xs leading-relaxed text-forest/80"
       role="note"
     >
       {{ disclaimer }}
     </p>
 
     <p
-      class="mb-6 rounded-lg border border-slate-800 bg-slate-900/40 p-3 text-xs leading-relaxed text-slate-400"
+      class="mb-8 rounded-md border border-dashed border-forest/30 bg-paper/70 p-4 text-xs leading-relaxed text-forest/70"
       role="note"
     >
-      <span class="font-semibold text-slate-300">Coming soon:</span> the terms generator is not built yet,
+      <span class="font-display text-sm font-bold text-forest italic">Coming soon:</span> the terms generator is not built yet,
       so submitting this form tells you that instead of returning a draft. The form is here to show what the
       tool will need.
     </p>
@@ -168,8 +171,8 @@ async function handleSubmit() {
       :error-message="errorMessage"
       loading-message="Drafting the terms from your policy knowledge base..."
     >
-      <p class="text-sm text-slate-400">Your AI result will appear here.</p>
-      <p class="mt-2 text-xs leading-relaxed text-slate-500">
+      <p class="font-display text-lg font-bold text-forest/80 italic">Your result will appear here.</p>
+      <p class="mt-2 text-xs leading-relaxed text-forest/60">
         Planned output: a draft covering scope, payment, revisions, cancellation and delivery, with the
         policy sections it was based on.
       </p>

@@ -66,9 +66,12 @@ async function handleSubmit() {
 <template>
   <div>
     <PageHeader
+      eyebrow="Tool 03"
       title="Script Analyzer"
       description="Paste a voice script and let CreatorFlow AI describe what the performance needs: the story, the tone and emotion, how hard it is vocally, who the voice should sound like, and how much work the job is."
-    />
+    >
+      <template #title>Script <em class="text-rust">Analyzer</em></template>
+    </PageHeader>
 
     <form class="space-y-6" novalidate @submit.prevent="handleSubmit">
       <FormField
@@ -109,24 +112,25 @@ async function handleSubmit() {
       :error-message="errorMessage"
       loading-message="Analyzing the script..."
     >
-      <dl v-if="result" class="space-y-3">
+      <dl v-if="result" class="space-y-5">
         <div
-          v-for="field in analysisFields"
+          v-for="(field, index) in analysisFields"
           :key="field.key"
-          class="rounded-lg border border-slate-800 bg-slate-950/60 p-3"
+          class="border-l-[3px] pl-4"
+          :class="index % 2 === 0 ? 'border-clay/70' : 'border-sage'"
         >
-          <dt class="text-xs font-semibold tracking-wide text-slate-400 uppercase">
+          <dt class="text-[0.66rem] font-bold tracking-[0.18em] text-forest/55 uppercase">
             {{ field.label }}
           </dt>
-          <dd class="mt-1 text-sm leading-relaxed whitespace-pre-line text-slate-300">
+          <dd class="mt-1 text-sm leading-relaxed whitespace-pre-line text-forest/85">
             {{ result[field.key] }}
           </dd>
         </div>
       </dl>
 
       <template v-else>
-        <p class="text-sm text-slate-400">Your AI result will appear here.</p>
-        <p class="mt-2 text-xs leading-relaxed text-slate-500">
+        <p class="font-display text-lg font-bold text-forest/80 italic">Your result will appear here.</p>
+        <p class="mt-2 text-xs leading-relaxed text-forest/60">
           Planned output: summary, tone, emotion, vocal difficulty, voice direction and a workload
           estimate.
         </p>

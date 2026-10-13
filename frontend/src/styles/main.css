@@ -1,27 +1,72 @@
 /* CreatorFlow AI - global styles.
    Almost everything is styled with Tailwind utility classes inside the Vue
-   components. Only a few shared base styles and one reusable form-control
-   class live here. */
+   components. The theme below defines the earthy palette, the two typefaces
+   and a handful of shared component classes. */
 @import 'tailwindcss';
 
-/* Shared class for text inputs, textareas and selects. */
+@theme {
+  /* Palette - warm paper, clay and shadow green. */
+  --color-cream: #f7f4eb;
+  --color-paper: #fdfbf4;
+  --color-sage: #c7e9c0;
+  --color-clay: #d97d64;
+  --color-rust: #a64b2a;
+  --color-forest: #2e3b29;
+
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Karla', 'Avenir Next', system-ui, sans-serif;
+}
+
 @layer components {
+  /* Shared class for text inputs, textareas and selects. */
   .field-input {
-    @apply w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-sm transition-colors placeholder:text-slate-500 hover:border-slate-600 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
+    @apply w-full rounded-md border border-forest/25 bg-paper px-3 py-2.5 text-sm text-forest transition-colors placeholder:text-forest/40 hover:border-forest/45 focus:border-clay focus:ring-2 focus:ring-clay/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .field-input[aria-invalid='true'] {
-    @apply border-rose-500/70 focus:border-rose-400 focus:ring-rose-500/30;
+    @apply border-clay focus:border-rust focus:ring-rust/25;
+  }
+
+  /* Main navigation link. The router adds `.is-active` to the current page. */
+  .nav-link {
+    @apply relative px-1 py-1.5 text-[0.72rem] font-bold tracking-[0.16em] text-forest/65 uppercase transition-colors hover:text-rust focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-rust/50;
+  }
+
+  .nav-link.is-active {
+    @apply text-forest;
+  }
+
+  .nav-link.is-active::after {
+    content: '';
+    @apply absolute right-0 -bottom-0.5 left-0 h-[3px] rounded-full bg-clay;
+    transform: rotate(-0.8deg);
+  }
+
+  /* Small all-caps label used above headings and panel titles. */
+  .eyebrow {
+    @apply flex items-center gap-2 text-[0.7rem] font-bold tracking-[0.22em] text-rust uppercase;
   }
 }
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
-    @apply bg-slate-950 text-slate-200 antialiased;
+    @apply text-forest antialiased;
+    background-color: var(--color-cream);
+    /* Barely-there paper grain, so the cream reads as warm paper. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background-color: var(--color-sage);
+    color: var(--color-forest);
+  }
+
+  em {
+    @apply italic;
   }
 
   /* Keep text readable on very small screens. */

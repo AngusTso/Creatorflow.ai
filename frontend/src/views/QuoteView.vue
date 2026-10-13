@@ -78,9 +78,12 @@ async function handleSubmit() {
 <template>
   <div>
     <PageHeader
+      eyebrow="Tool 01"
       title="Quote Assistant"
       description="Describe the project in your own words. The AI estimates the hours, then a small calculator does the arithmetic - the AI never guesses the final price."
-    />
+    >
+      <template #title>Quote <em class="text-rust">Assistant</em></template>
+    </PageHeader>
 
     <form class="space-y-6" novalidate @submit.prevent="handleSubmit">
       <FormField
@@ -140,37 +143,40 @@ async function handleSubmit() {
       loading-message="Reading your project description..."
     >
       <template v-if="result">
-        <p class="text-3xl font-semibold tracking-tight text-white">
+        <p class="font-display text-[2.6rem] leading-none font-black tracking-tight text-rust">
           {{ formatMoney(result.total) }}
         </p>
-        <p class="mt-1 text-xs text-slate-400">Total for the estimated {{ result.hours }} hours</p>
+        <p class="mt-2 text-xs text-forest/60">Total for the estimated {{ result.hours }} hours</p>
 
-        <dl class="mt-5 grid gap-3 sm:grid-cols-3">
-          <div class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
-            <dt class="text-xs font-medium text-slate-400">Currency</dt>
-            <dd class="mt-1 text-sm font-semibold text-white">{{ result.currency }}</dd>
+        <dl class="mt-6 grid divide-y divide-forest/15 border-y border-forest/15 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div class="py-3.5 sm:px-4 sm:first:pl-0">
+            <dt class="text-[0.66rem] font-bold tracking-[0.18em] text-forest/55 uppercase">Currency</dt>
+            <dd class="mt-1 font-display text-lg font-bold text-forest">{{ result.currency }}</dd>
           </div>
-          <div class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
-            <dt class="text-xs font-medium text-slate-400">Hourly rate</dt>
-            <dd class="mt-1 text-sm font-semibold text-white">{{ formatMoney(result.hourlyRate) }}</dd>
+          <div class="py-3.5 sm:px-4">
+            <dt class="text-[0.66rem] font-bold tracking-[0.18em] text-forest/55 uppercase">Hourly rate</dt>
+            <dd class="mt-1 font-display text-lg font-bold text-forest">{{ formatMoney(result.hourlyRate) }}</dd>
           </div>
-          <div class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
-            <dt class="text-xs font-medium text-slate-400">Estimated hours</dt>
-            <dd class="mt-1 text-sm font-semibold text-white">{{ result.hours }}</dd>
+          <div class="py-3.5 sm:px-4">
+            <dt class="text-[0.66rem] font-bold tracking-[0.18em] text-forest/55 uppercase">Estimated hours</dt>
+            <dd class="mt-1 font-display text-lg font-bold text-forest">{{ result.hours }}</dd>
           </div>
         </dl>
 
-        <div class="mt-5">
-          <h3 class="text-xs font-semibold tracking-wide text-slate-400 uppercase">Summary</h3>
-          <p class="mt-1 text-sm leading-relaxed whitespace-pre-line text-slate-300">
+        <div class="mt-6">
+          <h3 class="eyebrow text-forest/55">
+            <span class="inline-block size-1.5 rounded-full bg-sage" aria-hidden="true"></span>
+            Summary
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed whitespace-pre-line text-forest/85">
             {{ result.summary }}
           </p>
         </div>
       </template>
 
       <template v-else>
-        <p class="text-sm text-slate-400">Your AI result will appear here.</p>
-        <p class="mt-2 text-xs leading-relaxed text-slate-500">
+        <p class="font-display text-lg font-bold text-forest/80 italic">Your result will appear here.</p>
+        <p class="mt-2 text-xs leading-relaxed text-forest/60">
           You will get the estimated hours, your hourly rate, the currency and the calculated total, plus a
           short AI summary you can paste into your reply.
         </p>

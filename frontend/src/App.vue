@@ -5,17 +5,17 @@ import AppHeader from './components/AppHeader.vue'
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col">
+  <div class="flex min-h-screen flex-col font-sans">
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-indigo-500 focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+      class="rounded-sm focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:bg-rust focus-visible:px-4 focus-visible:py-2.5 focus-visible:text-sm focus-visible:font-semibold focus-visible:text-cream sr-only"
     >
       Skip to content
     </a>
 
     <AppHeader />
 
-    <main id="main" class="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+    <main id="main" class="mx-auto w-full max-w-5xl flex-1 px-5 py-12 sm:px-8 sm:py-16">
       <RouterView />
     </main>
 

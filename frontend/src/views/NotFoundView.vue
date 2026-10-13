@@ -1,38 +1,33 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import PageHeader from '../components/PageHeader.vue'
+
+const tools: { path: string; label: string }[] = [
+  { path: '/quote', label: 'Quote Assistant' },
+  { path: '/contract', label: 'Contract / TOS Assistant' },
+  { path: '/script', label: 'Script Analyzer' },
+]
 </script>
 
 <template>
   <div>
-    <PageHeader
-      title="Page not found"
-      description="That page does not exist (yet). Pick one of the three tools to keep going."
-    />
+    <PageHeader eyebrow="404" title="Page not found">
+      <template #title>Page <em class="text-rust">not found</em></template>
+      <template #default>
+        <p class="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-forest/70">
+          That page does not exist (yet). Pick one of the three tools to keep going.
+        </p>
+      </template>
+    </PageHeader>
 
-    <ul class="flex flex-wrap gap-3 text-sm font-medium">
-      <li>
+    <ul class="max-w-2xl">
+      <li v-for="tool in tools" :key="tool.path">
         <RouterLink
-          to="/quote"
-          class="inline-block rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-slate-200 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
+          :to="tool.path"
+          class="group flex items-baseline justify-between gap-4 border-b border-forest/15 py-4 font-display text-xl font-bold text-forest transition-colors hover:text-rust focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rust/50 sm:text-2xl"
         >
-          Quote Assistant
-        </RouterLink>
-      </li>
-      <li>
-        <RouterLink
-          to="/contract"
-          class="inline-block rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-slate-200 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
-        >
-          Contract / TOS Assistant
-        </RouterLink>
-      </li>
-      <li>
-        <RouterLink
-          to="/script"
-          class="inline-block rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-slate-200 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
-        >
-          Script Analyzer
+          {{ tool.label }}
+          <span class="text-base text-clay transition-transform group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
         </RouterLink>
       </li>
     </ul>
