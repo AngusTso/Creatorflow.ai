@@ -18,12 +18,14 @@ const links: { name: 'quote' | 'contract' | 'script'; label: string }[] = [
         :to="{ name: 'home' }"
         class="group flex items-center gap-3 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-rust/50"
       >
-        <span
-          class="grid size-11 shrink-0 -rotate-3 place-items-center rounded-[13px] bg-clay font-display text-xl font-black text-cream transition-transform duration-300 group-hover:rotate-0"
+        <img
+          src="/creatorflow-icon.png"
+          alt=""
+          width="160"
+          height="160"
+          class="size-11 shrink-0 -rotate-3 rounded-[13px] ring-1 ring-forest/10 transition-transform duration-300 group-hover:rotate-0"
           aria-hidden="true"
-        >
-          Cf
-        </span>
+        />
         <span class="leading-tight">
           <span class="block font-display text-xl font-black tracking-tight text-forest">
             CreatorFlow <em class="text-rust">AI</em>
