@@ -8,3 +8,5 @@ npm-debug.log*
 # Editor / OS files
 .DS_Store
 .idea
+.vercel
+.env*
