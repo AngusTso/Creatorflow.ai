@@ -1,4 +1,7 @@
-import { searchPolicies } from "./lib/rag/vsearch";
+import {
+  searchPoliciesBatch,
+  type SearchResult,
+} from "./lib/rag/vsearch";
 
 export const config = {
   runtime: "edge",
@@ -23,7 +26,7 @@ interface ContractRequest {
   deliveryTerms: string;
 }
 
-type PolicySearchResult = Awaited<ReturnType<typeof searchPolicies>>[number];
+type PolicySearchResult = SearchResult;
 
 interface ScoredPolicyResult extends PolicySearchResult {
   score: number;
@@ -169,6 +172,8 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
+  const pipelineStartedAt = Date.now();
+
   // Search for each core policy topic independently.
   // Including the project description preserves relevant context
   // while the beginning of each query focuses retrieval by topic.
@@ -193,9 +198,7 @@ export default async function handler(req: Request): Promise<Response> {
   let results: ScoredPolicyResult[];
 
   try {
-    const resultsByQuery = await Promise.all(
-      focusedQueries.map((query) => searchPolicies(query, 2)),
-    );
+    const resultsByQuery = await searchPoliciesBatch(focusedQueries, 2);
 
     // Merge the four ranked lists and remove duplicate chunks.
     results = mergeAndDeduplicate(resultsByQuery);
@@ -224,6 +227,8 @@ export default async function handler(req: Request): Promise<Response> {
     .join("\n\n---\n\n");
 
   let aiResponse: Response;
+  const modelStartedAt = Date.now();
+  console.info("Contract model request started");
 
   try {
     aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -380,6 +385,10 @@ ${context || "No relevant platform policy chunks were retrieved."}
     );
   }
 
+  console.info("Contract model response completed", {
+    elapsedMs: Date.now() - modelStartedAt,
+  });
+
   const content = aiData.choices?.[0]?.message?.content;
 
   if (typeof content !== "string" || content.length === 0) {
@@ -406,6 +415,10 @@ ${context || "No relevant platform policy chunks were retrieved."}
       { status: 502 },
     );
   }
+
+  console.info("Contract pipeline completed", {
+    elapsedMs: Date.now() - pipelineStartedAt,
+  });
 
   return Response.json({
     terms: parsed,

@@ -31,7 +31,11 @@ function getRetryDelayMs(retryAfter: string | null, attempt: number): number {
   return Math.min(60_000, 5_000 * 2 ** attempt);
 }
 
-export async function createEmbedding(text: string): Promise<number[]> {
+export async function createEmbeddings(texts: string[]): Promise<number[][]> {
+  if (texts.length === 0) {
+    return [];
+  }
+
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
@@ -39,6 +43,8 @@ export async function createEmbedding(text: string): Promise<number[]> {
   }
 
   let response: Response;
+  const startedAt = Date.now();
+  console.info("Policy embedding batch started", { count: texts.length });
 
   for (let attempt = 0; ; attempt += 1) {
     await waitForEmbeddingSlot();
@@ -50,7 +56,7 @@ export async function createEmbedding(text: string): Promise<number[]> {
       },
       body: JSON.stringify({
         model: EMBEDDING_MODEL,
-        input: text,
+        input: texts,
       }),
     });
 
@@ -86,11 +92,67 @@ export async function createEmbedding(text: string): Promise<number[]> {
   }
 
   const data = await response.json();
+  const items = (data as { data?: unknown }).data;
 
-  const embedding = data.data?.[0]?.embedding;
+  if (!Array.isArray(items) || items.length !== texts.length) {
+    throw new Error("Embedding API returned an unexpected number of vectors");
+  }
 
-  if (!Array.isArray(embedding)) {
-    throw new Error("Embedding API returned an invalid embedding");
+  const embeddings: (number[] | undefined)[] = Array(texts.length).fill(
+    undefined,
+  );
+
+  for (const [position, item] of items.entries()) {
+    if (typeof item !== "object" || item === null) {
+      throw new Error("Embedding API returned an invalid embedding");
+    }
+
+    const result = item as { index?: unknown; embedding?: unknown };
+    const index =
+      Number.isInteger(result.index) &&
+      (result.index as number) >= 0 &&
+      (result.index as number) < texts.length
+        ? (result.index as number)
+        : position;
+    const embedding = result.embedding;
+
+    if (
+      embeddings[index] !== undefined ||
+      !Array.isArray(embedding) ||
+      embedding.length === 0 ||
+      !embedding.every(
+        (value) => typeof value === "number" && Number.isFinite(value),
+      )
+    ) {
+      throw new Error("Embedding API returned an invalid embedding");
+    }
+
+    embeddings[index] = embedding;
+  }
+
+  const completeEmbeddings: number[][] = [];
+
+  for (const embedding of embeddings) {
+    if (!embedding) {
+      throw new Error("Embedding API returned an incomplete embedding batch");
+    }
+
+    completeEmbeddings.push(embedding);
+  }
+
+  console.info("Policy embedding batch completed", {
+    count: texts.length,
+    elapsedMs: Date.now() - startedAt,
+  });
+
+  return completeEmbeddings;
+}
+
+export async function createEmbedding(text: string): Promise<number[]> {
+  const [embedding] = await createEmbeddings([text]);
+
+  if (!embedding) {
+    throw new Error("Embedding API returned no embedding");
   }
 
   return embedding;
